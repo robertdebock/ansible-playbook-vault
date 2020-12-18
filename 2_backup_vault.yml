@@ -1,0 +1,11 @@
+#!/usr/bin/env ansible-playbook
+---
+
+- name: backup vault
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  roles:
+    - role: robertdebock.vault
+      vault_make_backup: yes

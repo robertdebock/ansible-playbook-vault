@@ -1,0 +1,13 @@
+---
+
+# This template saves the unseal keys and root token so it can be used after
+# Vault has been initialized.
+# Not a secure solution for production deployments, good enough for development
+# purposes.
+
+vault_unseal_keys:
+{% for unseal_key in vault_init_output.unseal_keys_b64 %}
+  - {{ unseal_key }}
+{% endfor %}
+
+vault_root_token: {{ vault_init_output.root_token }}

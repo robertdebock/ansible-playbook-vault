@@ -1,0 +1,4 @@
+exclude_paths:
+  - exception.yml
+  - preferences.yml
+  - verify.yml

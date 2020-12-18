@@ -1,0 +1,4 @@
+.vagrant
+roles/*
+!/roles/requirements.yml
+group_vars/*/vault.yml

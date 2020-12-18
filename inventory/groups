@@ -1,0 +1,13 @@
+# The hosts have been grouped into "a" and "b". After running the playbooks
+# "a" is DR-primary, "b" is DR-secondary. vault-*-1 will initially be leaders,
+# but the leader role will (automatically) move to other nodes on reboots.
+
+[a]
+vault-a-1
+vault-a-2
+vault-a-3
+
+[b]
+vault-b-1
+vault-b-2
+vault-b-3

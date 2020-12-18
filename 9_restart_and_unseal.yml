@@ -1,0 +1,43 @@
+#!/usr/bin/env ansible-playbook
+---
+
+- name: restart and unseal vault
+  hosts: all
+  become: yes
+  gather_facts: yes
+  serial: 1
+
+  tasks:
+    - name: restart vault
+      service:
+        name: vault
+        state: restarted
+
+    - name: unseal vault
+      command: vault operator unseal {{ item }}
+      register: vault_unseal_vault
+      until: vault_unseal_vault is succeeded
+      retries: 3
+      environment:
+        VAULT_ADDR: "{{ vault_api_addr }}"
+      loop: "{{ vault_init_output.unseal_keys_b64 | default(vault_unseal_keys) }}"
+      loop_control:
+        label: "hidden"
+      no_log: yes
+
+- name: show ha status
+  hosts: vault-*-1
+  become: yes
+  gather_facts: no
+
+  tasks:
+    - name: get peers list
+      command: vault operator raft list-peers
+      register: vault_list_peers
+      environment:
+        VAULT_ADDR: "{{ vault_api_addr }}"
+        VAULT_TOKEN: "{{ vault_root_token }}"
+
+    - name: show peers
+      debug:
+        msg: "{{ vault_list_peers.stdout }}"

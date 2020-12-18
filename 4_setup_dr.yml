@@ -1,0 +1,39 @@
+#!/usr/bin/env ansible-playbook
+---
+
+- name: setup vault primary cluster
+  hosts: vault-a-1
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: make cluster primary
+      block:
+        - name: dr enable primary
+          command: vault write -f sys/replication/dr/primary/enable
+          environment:
+            VAULT_ADDR: "{{ vault_api_addr }}"
+            VAULT_TOKEN: "{{ vault_root_token }}"
+
+    - name: generate token for secondary cluster
+      command: vault write sys/replication/dr/primary/secondary-token id="secondary" -format=yaml
+      register: vault_secondary_token_raw
+      environment:
+        VAULT_ADDR: "{{ vault_api_addr }}"
+        VAULT_TOKEN: "{{ vault_root_token }}"
+
+    - name: save token for secondary cluster
+      set_fact:
+        vault_secondary_token: "{{ vault_secondary_token_raw.stdout | from_yaml }}"
+
+- name: setup vault secondary cluster
+  hosts: vault-b-1
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: join primary as secondary
+      command: vault write sys/replication/dr/secondary/enable token="{{ hostvars['vault-a-1']['vault_secondary_token']['wrap_info']['token'] }}"
+      environment:
+        VAULT_ADDR: "{{ vault_api_addr }}"
+        VAULT_TOKEN: "{{ vault_root_token }}"

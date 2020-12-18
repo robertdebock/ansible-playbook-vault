@@ -1,0 +1,40 @@
+#!/usr/bin/env ansible-playbook
+---
+
+- name: install vault 1.4.2
+  hosts: all
+  become: yes
+  gather_facts: no
+
+  pre_tasks:
+    - name: show group
+      debug:
+        msg: "This host is part of group {{ group_names[0] }}"
+
+  roles:
+    - role: robertdebock.bootstrap
+    - role: robertdebock.core_dependencies
+    - role: robertdebock.common
+    - role: robertdebock.hashicorp
+      hashicorp_products:
+        - name: vault
+          version: 1.4.2
+          type: ent
+    - name: robertdebock.users
+    - name: robertdebock.service
+    - role: robertdebock.vault
+      vault_show_unseal_information: yes
+
+  post_tasks:
+    - name: save unseal keys and root token in group_vars
+      template:
+        src: vault.yml.j2
+        dest: group_vars/{{ group_names[0] }}/vault.yml
+      when:
+        - vault_init_output is defined
+        - vault_init_output.unseal_keys_b64 is defined
+        - vault_init_output is defined
+        - vault_init_output.root_token is defined
+      delegate_to: localhost
+      become: no
+      run_once: yes

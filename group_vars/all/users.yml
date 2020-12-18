@@ -1,0 +1,6 @@
+---
+users_group_list:
+  - name: vault
+users_user_list:
+  - name: vault
+    group: vault

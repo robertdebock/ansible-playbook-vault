@@ -1,0 +1,7 @@
+---
+service_list:
+  - name: vault
+    description: HashiCorp Vault - A tool for managing secrets
+    start_command: "/usr/bin/vault server -config=/etc/vault.d/vault.hcl"
+    user_name: vault
+    group_name: vault
