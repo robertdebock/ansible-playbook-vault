@@ -42,7 +42,7 @@
     - role: robertdebock.hashicorp
       hashicorp_products:
         - name: vault
-          type: oss
+          type: "{{ vault_type }}"
           version: "{{ vault_version }}"
     - name: robertdebock.users
     - name: robertdebock.service

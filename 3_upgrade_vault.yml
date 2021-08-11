@@ -51,7 +51,7 @@
         hashicorp_products:
           - name: vault
             version: 1.8.0
-            type: oss
+            type: "{{ vault_type }}"
 
     - name: start vault
       service:

@@ -1,6 +1,7 @@
 ---
 
 vault_version: 1.8.0
+vault_type: oss
 
 vault_listeners:
   - name: tcp
