@@ -1,15 +1,39 @@
 #!/usr/bin/env ansible-playbook
 ---
+- name: create machines
+  hosts: localhost
+  gather_facts: no
 
-- name: install vault 1.4.2
+  tasks:
+    - name: apply terraform code
+      terraform:
+        project_path: ./terraform
+        state: present
+        force_init: yes
+      register: terraform
+
+    - name: add terraform hosts a to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - a
+      loop: "{{ terraform.outputs.a.value }}"
+
+    - name: add terraform hosts b to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - b
+      loop: "{{ terraform.outputs.b.value }}"
+
+    - name: wait a moment to allow dns updates
+      pause:
+        seconds: 15
+
+- name: install shared components
   hosts: all
   become: yes
   gather_facts: no
-
-  pre_tasks:
-    - name: show group
-      debug:
-        msg: "This host is part of group {{ group_names[0] }}"
 
   roles:
     - role: robertdebock.bootstrap
@@ -18,18 +42,48 @@
     - role: robertdebock.hashicorp
       hashicorp_products:
         - name: vault
-          version: 1.4.2
-          type: ent
+          type: oss
+          version: "{{ vault_version }}"
     - name: robertdebock.users
     - name: robertdebock.service
+
+- name: install vault-a components
+  hosts: a
+  become: yes
+  gather_facts: no
+
+  roles:
     - role: robertdebock.vault
       vault_show_unseal_information: yes
 
   post_tasks:
-    - name: save unseal keys and root token in group_vars
+    - name: save a unseal keys and root token in group_vars
       template:
         src: vault.yml.j2
-        dest: group_vars/{{ group_names[0] }}/vault.yml
+        dest: group_vars/a/vault.yml
+      when:
+        - vault_init_output is defined
+        - vault_init_output.unseal_keys_b64 is defined
+        - vault_init_output is defined
+        - vault_init_output.root_token is defined
+      delegate_to: localhost
+      become: no
+      run_once: yes
+
+- name: install vault-b components
+  hosts: b
+  become: yes
+  gather_facts: no
+
+  roles:
+    - role: robertdebock.vault
+      vault_show_unseal_information: yes
+
+  post_tasks:
+    - name: save a unseal keys and root token in group_vars
+      template:
+        src: vault.yml.j2
+        dest: group_vars/b/vault.yml
       when:
         - vault_init_output is defined
         - vault_init_output.unseal_keys_b64 is defined

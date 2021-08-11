@@ -1,4 +1,5 @@
 ---
+
 service_list:
   - name: vault
     description: HashiCorp Vault - A tool for managing secrets

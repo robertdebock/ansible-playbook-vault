@@ -1,5 +1,34 @@
 #!/usr/bin/env ansible-playbook
 ---
+- name: create machines
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: apply terraform code
+      terraform:
+        project_path: ./terraform
+        state: present
+        force_init: yes
+      register: terraform
+
+    - name: add terraform hosts a to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - a
+      loop: "{{ terraform.outputs.a.value }}"
+
+    - name: add terraform hosts b to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - b
+      loop: "{{ terraform.outputs.b.value }}"
+
+    - name: wait a moment to allow dns updates
+      pause:
+        seconds: 15
 
 - name: restart and unseal vault
   hosts: all
@@ -26,7 +55,7 @@
       no_log: yes
 
 - name: show ha status
-  hosts: vault-*-1
+  hosts: vault-*-1.meinit.nl
   become: yes
   gather_facts: no
 

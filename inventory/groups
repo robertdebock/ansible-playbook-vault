@@ -3,11 +3,11 @@
 # but the leader role will (automatically) move to other nodes on reboots.
 
 [a]
-vault-a-1
-vault-a-2
-vault-a-3
+vault-a-0.meinit.nl
+vault-a-1.meinit.nl
+vault-a-2.meinit.nl
 
 [b]
-vault-b-1
-vault-b-2
-vault-b-3
+vault-b-0.meinit.nl
+vault-b-1.meinit.nl
+vault-b-2.meinit.nl
