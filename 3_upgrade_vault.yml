@@ -44,14 +44,14 @@
         name: vault
         state: stopped
 
-    - name: install vault 1.6.0
+    - name: install vault 1.8.0
       include_role:
         name: robertdebock.hashicorp
       vars:
         hashicorp_products:
           - name: vault
-            version: 1.6.0
-            type: ent
+            version: 1.8.0
+            type: oss
 
     - name: start vault
       service:
