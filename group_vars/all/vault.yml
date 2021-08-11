@@ -1,0 +1,11 @@
+---
+
+vault_version: 1.8.0
+
+vault_listeners:
+  - name: tcp
+    address: "{{ ansible_default_ipv4.address }}:8200"
+    cluster_address: "{{ ansible_default_ipv4.address }}:8201"
+    tls_disable: "true"
+vault_api_addr: "http://{{ ansible_default_ipv4.address }}:8200"
+vault_cluster_addr: "https://{{ ansible_default_ipv4.address }}:8201"

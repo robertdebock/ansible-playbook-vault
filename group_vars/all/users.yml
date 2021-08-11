@@ -1,4 +1,5 @@
 ---
+
 users_group_list:
   - name: vault
 users_user_list:

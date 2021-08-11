@@ -2,3 +2,4 @@
 roles/*
 !/roles/requirements.yml
 group_vars/*/vault.yml
+!group_vars/all/vault.yml
