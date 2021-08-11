@@ -5,10 +5,10 @@ Try upgrades of Vault over DR and HA clusters.
 ## Overview
 
 This setup consists of:
-- 1 Disaster Recovery (DR) cluster
 - 2 Highly Available (HA) clusters
+- 1 Disaster Recovery (DR) cluster
 - 2 HashiCorp Vault leaders, 1 in each HA cluster.
-- 4 HashiCorp Vault followers, 2 in echa HA cluster.
+- 4 HashiCorp Vault followers, 2 in each HA cluster.
 
 ```text
 +------------------- DR cluster --------------------+
@@ -27,12 +27,6 @@ This setup consists of:
 ```
 
 ## Prepare
-
-Start the virtual machines.
-
-```shell
-vagrant up
-```
 
 Download or update the Ansible roles.
 
