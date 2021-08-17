@@ -12,31 +12,52 @@
         force_init: yes
       register: terraform
 
-    - name: add terraform hosts a to inventory
+    - name: add vault_a to inventory
       add_host:
         name: "{{ item }}"
         groups:
-          - a
-      loop: "{{ terraform.outputs.a.value }}"
+          - vault_a
+      loop: "{{ terraform.outputs.vault_a.value }}"
 
-    - name: add terraform hosts b to inventory
+    - name: add vault_b to inventory
       add_host:
         name: "{{ item }}"
         groups:
-          - b
-      loop: "{{ terraform.outputs.b.value }}"
+          - vault_b
+      loop: "{{ terraform.outputs.vault_b.value }}"
+
+    - name: add loadbalancer_a to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - loadbalancer_a
+      loop: "{{ terraform.outputs.loadbalancer_a.value }}"
+
+    - name: add loadbalancer_b to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - loadbalancer_b
+      loop: "{{ terraform.outputs.loadbalancer_b.value }}"
+
+    - name: add loadbalancer to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - loadbalancer
+      loop: "{{ terraform.outputs.loadbalancer.value }}"
 
     - name: wait a moment to allow dns updates
       pause:
         seconds: 15
 
-- name: upgrade vault to 1.6.0
+- name: upgrade vault to 1.8.1
   # Use the reverse order, leader last.
-  hosts: vault-*-3:vault-*-2:vault-*-1
+  hosts: vault_a:vault_b
   become: yes
   gather_facts: yes
   # Run on 2 hosts at a time, 1 from "a", 1 from "b".
-  serial: 2
+  serial: 1
 
   tasks:
     - name: stop vault
@@ -44,13 +65,13 @@
         name: vault
         state: stopped
 
-    - name: install vault 1.8.0
+    - name: install vault 1.8.1
       include_role:
         name: robertdebock.hashicorp
       vars:
         hashicorp_products:
           - name: vault
-            version: 1.8.0
+            version: 1.8.1
             type: "{{ vault_type }}"
 
     - name: start vault

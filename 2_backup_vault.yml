@@ -12,26 +12,47 @@
         force_init: yes
       register: terraform
 
-    - name: add terraform hosts a to inventory
+    - name: add vault_a to inventory
       add_host:
         name: "{{ item }}"
         groups:
-          - a
-      loop: "{{ terraform.outputs.a.value }}"
+          - vault_a
+      loop: "{{ terraform.outputs.vault_a.value }}"
 
-    - name: add terraform hosts b to inventory
+    - name: add vault_b to inventory
       add_host:
         name: "{{ item }}"
         groups:
-          - b
-      loop: "{{ terraform.outputs.b.value }}"
+          - vault_b
+      loop: "{{ terraform.outputs.vault_b.value }}"
+
+    - name: add loadbalancer_a to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - loadbalancer_a
+      loop: "{{ terraform.outputs.loadbalancer_a.value }}"
+
+    - name: add loadbalancer_b to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - loadbalancer_b
+      loop: "{{ terraform.outputs.loadbalancer_b.value }}"
+
+    - name: add loadbalancer to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - loadbalancer
+      loop: "{{ terraform.outputs.loadbalancer.value }}"
 
     - name: wait a moment to allow dns updates
       pause:
         seconds: 15
 
 - name: backup vault
-  hosts: all
+  hosts: vault_a:vault_b
   become: yes
   gather_facts: yes
 

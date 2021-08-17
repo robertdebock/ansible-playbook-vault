@@ -1,0 +1,16 @@
+---
+
+haproxy_frontends:
+  - name: vault_b
+    address: "*"
+    port: 8200
+    default_backend: backend
+
+haproxy_backends:
+  - name: backend
+    httpcheck: yes
+    httpcheck_method: GET /v1/sys/health
+    servers: "{{ groups['vault_b'] }}"
+    port: 8200
+    options:
+      - check

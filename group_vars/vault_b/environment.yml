@@ -1,0 +1,4 @@
+---
+
+environment_list:
+  VAULT_ADDR: "http://{{ ansible_default_ipv4.address }}:8200"

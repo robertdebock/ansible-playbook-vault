@@ -12,57 +12,115 @@
         force_init: yes
       register: terraform
 
-    - name: add terraform hosts a to inventory
+    - name: add vault_a to inventory
       add_host:
         name: "{{ item }}"
         groups:
-          - a
-      loop: "{{ terraform.outputs.a.value }}"
+          - vault_a
+      loop: "{{ terraform.outputs.vault_a.value }}"
 
-    - name: add terraform hosts b to inventory
+    - name: add vault_b to inventory
       add_host:
         name: "{{ item }}"
         groups:
-          - b
-      loop: "{{ terraform.outputs.b.value }}"
+          - vault_b
+      loop: "{{ terraform.outputs.vault_b.value }}"
+
+    - name: add loadbalancer_a to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - loadbalancer_a
+      loop: "{{ terraform.outputs.loadbalancer_a.value }}"
+
+    - name: add loadbalancer_b to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - loadbalancer_b
+      loop: "{{ terraform.outputs.loadbalancer_b.value }}"
+
+    - name: add loadbalancer to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - loadbalancer
+      loop: "{{ terraform.outputs.loadbalancer.value }}"
 
     - name: wait a moment to allow dns updates
       pause:
         seconds: 15
 
 - name: setup vault primary cluster
-  hosts: vault-a-1.meinit.nl
+  hosts: vault-a-0.meinit.nl
   become: yes
   gather_facts: yes
 
   tasks:
     - name: make cluster primary
       block:
+        - name: check dr status
+          command:
+            cmd: vault read sys/replication/status -format=yaml
+          changed_when: no
+          environment:
+            VAULT_ADDR: "{{ vault_api_addr }}"
+            VAULT_TOKEN: "{{ vault_root_token }}"
+          register: dr_status
+
+        - name: save dr state in yaml
+          set_fact:
+            dr_status_yaml: "{{ dr_status.stdout | from_yaml }}"
+
         - name: dr enable primary
-          command: vault write -f sys/replication/dr/primary/enable
+          command:
+            cmd: vault write -f sys/replication/dr/primary/enable
+          environment:
+            VAULT_ADDR: "{{ vault_api_addr }}"
+            VAULT_TOKEN: "{{ vault_root_token }}"
+          when:
+            - dr_status_yaml.data.dr.mode != "primary"
+
+    - name: generate token for secondary cluster
+      block:
+        - name: check secondary status
+          command:
+            cmd: vault read sys/replication/dr/status -format=yaml
+          changed_when: no
+          register: secondary_status
           environment:
             VAULT_ADDR: "{{ vault_api_addr }}"
             VAULT_TOKEN: "{{ vault_root_token }}"
 
-    - name: generate token for secondary cluster
-      command: vault write sys/replication/dr/primary/secondary-token id="secondary" -format=yaml
-      register: vault_secondary_token_raw
-      environment:
-        VAULT_ADDR: "{{ vault_api_addr }}"
-        VAULT_TOKEN: "{{ vault_root_token }}"
+        - name: save secondary state in yaml
+          set_fact:
+            secondaries: "{{ secondary_status.stdout | from_yaml }}"
+
+        - name: make secondary token
+          command: vault write sys/replication/dr/primary/secondary-token id="secondary" -format=yaml
+          register: vault_secondary_token_raw
+          environment:
+            VAULT_ADDR: "{{ vault_api_addr }}"
+            VAULT_TOKEN: "{{ vault_root_token }}"
+          when:
+            -  '"secondary" not in secondaries.data.known_secondaries'
 
     - name: save token for secondary cluster
       set_fact:
         vault_secondary_token: "{{ vault_secondary_token_raw.stdout | from_yaml }}"
+      when:
+        - vault_secondary_token_raw.stdout is defined
 
 - name: setup vault secondary cluster
-  hosts: vault-b-1.meinit.nl
+  hosts: vault-b-0.meinit.nl
   become: yes
   gather_facts: yes
 
   tasks:
     - name: join primary as secondary
-      command: vault write sys/replication/dr/secondary/enable token="{{ hostvars['vault-a-1']['vault_secondary_token']['wrap_info']['token'] }}"
+      command: vault write sys/replication/dr/secondary/enable token="{{ hostvars['vault-a-1.meinit.nl']['vault_secondary_token']['wrap_info']['token'] }}"
       environment:
         VAULT_ADDR: "{{ vault_api_addr }}"
         VAULT_TOKEN: "{{ vault_root_token }}"
+      when:
+        - hostvars['vault-a-1.meinit.nl']['vault_secondary_token']['wrap_info']['token'] is defined

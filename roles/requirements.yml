@@ -3,7 +3,11 @@ roles:
   - name: robertdebock.bootstrap
   - name: robertdebock.common
   - name: robertdebock.core_dependencies
+  - name: robertdebock.digitalocean_agent
+  - name: robertdebock.environment
+  - name: robertdebock.haproxy
   - name: robertdebock.hashicorp
+  - name: robertdebock.keepalived
   - name: robertdebock.service
   - name: robertdebock.users
   - name: robertdebock.vault

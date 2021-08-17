@@ -1,0 +1,16 @@
+---
+
+keepalived_vrrp_instances:
+  - name: VI
+    state: MASTER
+    interface: eth1
+    unicast_src_ip: "{{ ansible_eth1.ipv4.address }}"
+    secondary_private_ip: "{{ hostvars['loadbalancer-a-1.meinit.nl'].ansible_eth1.ipv4.address }}"
+    virtual_router_id: 32
+    priority: 255
+    authentication:
+      auth_type: PASS
+      auth_pass: "12345"
+    virtual_ipaddresses:
+      - name: 192.168.122.32
+        cidr: 24

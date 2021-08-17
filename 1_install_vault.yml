@@ -1,6 +1,6 @@
 #!/usr/bin/env ansible-playbook
 ---
-- name: create machines
+- name: create infrastructure
   hosts: localhost
   gather_facts: no
 
@@ -12,19 +12,40 @@
         force_init: yes
       register: terraform
 
-    - name: add terraform hosts a to inventory
+    - name: add vault_a to inventory
       add_host:
         name: "{{ item }}"
         groups:
-          - a
-      loop: "{{ terraform.outputs.a.value }}"
+          - vault_a
+      loop: "{{ terraform.outputs.vault_a.value }}"
 
-    - name: add terraform hosts b to inventory
+    - name: add vault_b to inventory
       add_host:
         name: "{{ item }}"
         groups:
-          - b
-      loop: "{{ terraform.outputs.b.value }}"
+          - vault_b
+      loop: "{{ terraform.outputs.vault_b.value }}"
+
+    - name: add loadbalancer_a to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - loadbalancer_a
+      loop: "{{ terraform.outputs.loadbalancer_a.value }}"
+
+    - name: add loadbalancer_b to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - loadbalancer_b
+      loop: "{{ terraform.outputs.loadbalancer_b.value }}"
+
+    - name: add loadbalancer to inventory
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - loadbalancer
+      loop: "{{ terraform.outputs.loadbalancer.value }}"
 
     - name: wait a moment to allow dns updates
       pause:
@@ -39,16 +60,25 @@
     - role: robertdebock.bootstrap
     - role: robertdebock.core_dependencies
     - role: robertdebock.common
+    - role: robertdebock.digitalocean_agent
+
+- name: install vault components
+  hosts: vault_a:vault_b
+  become: yes
+  gather_facts: yes
+
+  roles:
+    - role: robertdebock.users
     - role: robertdebock.hashicorp
       hashicorp_products:
         - name: vault
           type: "{{ vault_type }}"
           version: "{{ vault_version }}"
-    - name: robertdebock.users
-    - name: robertdebock.service
+    - role: robertdebock.service
+    - role: robertdebock.environment
 
 - name: install vault-a components
-  hosts: a
+  hosts: vault_a
   become: yes
   gather_facts: no
 
@@ -60,7 +90,7 @@
     - name: save a unseal keys and root token in group_vars
       template:
         src: vault.yml.j2
-        dest: group_vars/a/vault.yml
+        dest: group_vars/vault_a/vault.yml
       when:
         - vault_init_output is defined
         - vault_init_output.unseal_keys_b64 is defined
@@ -71,7 +101,7 @@
       run_once: yes
 
 - name: install vault-b components
-  hosts: b
+  hosts: vault_b
   become: yes
   gather_facts: no
 
@@ -83,7 +113,7 @@
     - name: save a unseal keys and root token in group_vars
       template:
         src: vault.yml.j2
-        dest: group_vars/b/vault.yml
+        dest: group_vars/vault_b/vault.yml
       when:
         - vault_init_output is defined
         - vault_init_output.unseal_keys_b64 is defined
@@ -92,3 +122,12 @@
       delegate_to: localhost
       become: no
       run_once: yes
+
+- name: install loadbalancer components
+  hosts: loadbalancer_a:loadbalancer_b:loadbalancer
+  become: yes
+  gather_facts: yes
+
+  roles:
+    - role: robertdebock.haproxy
+    - role: robertdebock.keepalived
