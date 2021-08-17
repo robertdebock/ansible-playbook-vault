@@ -50,9 +50,9 @@
     - name: wait a moment to allow dns updates
       pause:
         seconds: 15
-        
+
 - name: restart and unseal vault
-  hosts: all
+  hosts: vault_a:vault_b
   become: yes
   gather_facts: yes
   serial: 1

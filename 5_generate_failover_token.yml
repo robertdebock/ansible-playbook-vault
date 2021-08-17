@@ -50,9 +50,9 @@
     - name: wait a moment to allow dns updates
       pause:
         seconds: 15
-        
+
 - name: generate failover token
-  hosts: vault-a-1.meinit.nl
+  hosts: vault-a-0.meinit.nl
   become: yes
   gather_facts: yes
 
