@@ -123,4 +123,4 @@
         VAULT_ADDR: "{{ vault_api_addr }}"
         VAULT_TOKEN: "{{ vault_root_token }}"
       when:
-        - hostvars['vault-a-1.meinit.nl']['vault_secondary_token']['wrap_info']['token'] is defined
+        - hostvars['vault-a-0.meinit.nl']['vault_secondary_token']['wrap_info']['token'] is defined
