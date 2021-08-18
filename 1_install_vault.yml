@@ -131,13 +131,3 @@
   roles:
     - role: robertdebock.haproxy
     - role: robertdebock.keepalived
-
-- name: show loadbalancer endpoints
-  debug:
-    msg:
-      - "loadbalancer-a-0: http://loadbalancer-a-0.meinit.nl:1936/stats"
-      - "loadbalancer-a-1: http://loadbalancer-a-1.meinit.nl:1936/stats"
-      - "loadbalancer-b-0: http://loadbalancer-b-0.meinit.nl:1936/stats"
-      - "loadbalancer-b-1: http://loadbalancer-b-1.meinit.nl:1936/stats"
-      - "loadbalancer-0: http://loadbalancer-0.meinit.nl:1936/stats"
-      - "loadbalancer-0: http://loadbalancer-1.meinit.nl:1936/stats"
