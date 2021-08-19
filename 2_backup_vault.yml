@@ -1,6 +1,6 @@
 #!/usr/bin/env ansible-playbook
 ---
-  
+
 - name: create infrastructure
   hosts: localhost
   gather_facts: no
@@ -8,6 +8,11 @@
   tasks:
     - name: include 0_terraform
       include: 0_terraform.yml
+
+  handlers:
+    - name: pause
+      pause:
+        seconds: 15
 
 - name: backup vault
   hosts: vault_a:vault_b

@@ -6,6 +6,8 @@
     state: present
     force_init: yes
   register: terraform
+  notify:
+    - pause
 
 - name: add vault_a to inventory
   add_host:
@@ -42,6 +44,6 @@
       - loadbalancer
   loop: "{{ terraform.outputs.loadbalancer.value }}"
 
-- name: wait a moment to allow dns updates
-  pause:
-    seconds: 15
+# - name: wait a moment to allow dns updates
+#   pause:
+#     seconds: 15

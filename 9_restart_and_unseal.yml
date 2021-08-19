@@ -9,6 +9,11 @@
     - name: include 0_terraform
       include: 0_terraform.yml
 
+  handlers:
+    - name: pause
+      pause:
+        seconds: 15
+
 - name: restart and unseal vault
   hosts: vault_a:vault_b
   become: yes

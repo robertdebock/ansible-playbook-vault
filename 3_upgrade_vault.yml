@@ -9,12 +9,15 @@
     - name: include 0_terraform
       include: 0_terraform.yml
 
+  handlers:
+    - name: pause
+      pause:
+        seconds: 15
+
 - name: upgrade vault to 1.8.1
-  # Use the reverse order, leader last.
-  hosts: vault_a:vault_b
+  hosts: vault_b:vault_a
   become: yes
   gather_facts: yes
-  # Run on 2 hosts at a time, 1 from "a", 1 from "b".
   serial: 1
 
   tasks:
