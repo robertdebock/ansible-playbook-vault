@@ -2,7 +2,6 @@
 ---
 
 - name: create infrastructure
-- name: create infrastructure
   hosts: localhost
   gather_facts: no
 
