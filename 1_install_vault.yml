@@ -33,10 +33,10 @@
   roles:
     - role: robertdebock.users
     - role: robertdebock.hashicorp
-      hashicorp_products:
-        - name: vault
-          type: "{{ vault_type }}"
-          version: "{{ vault_version }}"
+      # hashicorp_products:
+      #   - name: vault
+      #     type: "{{ vault_type }}"
+      #     version: "{{ vault_version }}"
     - role: robertdebock.service
     - role: robertdebock.environment
 
