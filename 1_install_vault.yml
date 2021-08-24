@@ -26,7 +26,7 @@
     - role: robertdebock.digitalocean_agent
 
 - name: install vault components
-  hosts: vault_a:vault_b
+  hosts: vault
   become: yes
   gather_facts: yes
 
@@ -35,6 +35,7 @@
     - role: robertdebock.hashicorp
     - role: robertdebock.service
     - role: robertdebock.environment
+    - role: robertdebock.logrotate
 
 - name: install vault-a components
   hosts: vault_a

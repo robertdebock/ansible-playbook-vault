@@ -8,6 +8,7 @@ roles:
   - name: robertdebock.haproxy
   - name: robertdebock.hashicorp
   - name: robertdebock.keepalived
+  - name: robertdebock.logrotate
   - name: robertdebock.service
   - name: robertdebock.users
   - name: robertdebock.vault

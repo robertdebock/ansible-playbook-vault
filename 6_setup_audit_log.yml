@@ -1,0 +1,64 @@
+#!/usr/bin/env ansible-playbook
+---
+
+- name: create infrastructure
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: include 0_terraform
+      include: 0_terraform.yml
+
+  handlers:
+    - name: pause
+      pause:
+        seconds: 15
+
+- name: configure audit log
+  hosts: vault-a-0.meinit.nl
+  become: no
+  gather_facts: yes
+
+  tasks:
+    - name: check
+      command:
+        cmd: vault audit enable file file_path=/var/log/vault_audit.log
+      environment:
+        VAULT_ADDR: "{{ vault_api_addr }}"
+        VAULT_TOKEN: "{{ vault_root_token }}"
+
+  # tasks:
+  #   - name: place vault policy dr-secondary-promotion
+  #     copy:
+  #       dest: /root/dr-secondary-promotion.policy
+  #       content: |
+  #         path "sys/replication/dr/secondary/promote" {
+  #           capabilities = [ "update" ]
+  #         }
+  #
+  #   - name: write vault policy dr-secondary-promotion
+  #     command: vault policy write dr-secondary-promotion /root/dr-secondary-promotion.policy
+  #     environment:
+  #       VAULT_ADDR: "{{ vault_api_addr }}"
+  #       VAULT_TOKEN: "{{ vault_root_token }}"
+  #
+  #   - name: create vault role failover-handler
+  #     command: vault write auth/token/roles/failover-handler allowed_policies=dr-secondary-promotion orphan=true renewable=false token_type=batch
+  #     environment:
+  #       VAULT_ADDR: "{{ vault_api_addr }}"
+  #       VAULT_TOKEN: "{{ vault_root_token }}"
+  #
+  #   - name: create token for failover-handler
+  #     command: vault token create -role=failover-handler -ttl=8h -format=yaml
+  #     register: vault_create_failover_token_raw
+  #     environment:
+  #       VAULT_ADDR: "{{ vault_api_addr }}"
+  #       VAULT_TOKEN: "{{ vault_root_token }}"
+  #
+  #   - name: save vault_create_failover_token
+  #     set_fact:
+  #       vault_create_failover_token: "{{ vault_create_failover_token_raw.stdout | from_yaml }}"
+  #
+  #   - name: show failover-handler token
+  #     debug:
+  #       msg: "{{ vault_create_failover_token.auth.client_token }}"

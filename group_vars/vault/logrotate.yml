@@ -1,0 +1,7 @@
+---
+
+logrotate_entries:
+  - name: vault
+    path: "/data/vault/audit/vault.log"
+    keep: 14
+    compress: yes
