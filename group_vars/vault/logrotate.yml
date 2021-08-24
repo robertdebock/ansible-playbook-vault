@@ -2,6 +2,9 @@
 
 logrotate_entries:
   - name: vault
-    path: "/data/vault/audit/vault.log"
+    path: "{{ vault_audit_path }}"
     keep: 14
     compress: yes
+    missingok: yes
+    frequency: daily
+    postrotate: /usr/bin/systemctl reload vault 2> /dev/null || true
