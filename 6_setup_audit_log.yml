@@ -20,9 +20,29 @@
   gather_facts: yes
 
   tasks:
-    - name: check
+    - name: make /var/log/vault
+      file:
+        path: /var/log/vault
+        state: directory
+        owner: "{{ vault_owner }}"
+        group: "{{ vault_group }}"
+
+    - name: check audit logs
+      command:
+        cmd: vault audit list --format=yaml
+      register: vault_audit_list
+      changed_when: no
+
+    - name: save audit status in yaml
+      set_fact:
+        vault_audit_list_yaml: "{{ vault_audit_list.stdout | from_yaml }}"
+
+    - name: enable audit logs
       command:
         cmd: vault audit enable file file_path={{ vault_audit_path }}
       environment:
         VAULT_ADDR: "{{ vault_api_addr }}"
         VAULT_TOKEN: "{{ vault_root_token }}"
+      when:
+        - vault.vault_audit_list['file/'] is defined
+        - vault_audit_list_yaml['file/']options.file_path != {{ vault_audit_path }}
