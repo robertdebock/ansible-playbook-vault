@@ -15,7 +15,7 @@
         seconds: 15
 
 - name: restart and unseal vault
-  hosts: vault_a:vault_b
+  hosts: vault
   become: yes
   gather_facts: yes
   serial: 1
@@ -39,7 +39,7 @@
       no_log: yes
 
 - name: show ha status
-  hosts: vault-*-1.meinit.nl
+  hosts: vault-*-0.meinit.nl
   become: yes
   gather_facts: no
 

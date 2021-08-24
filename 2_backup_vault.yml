@@ -15,7 +15,7 @@
         seconds: 15
 
 - name: backup vault
-  hosts: vault_a:vault_b
+  hosts: vault
   become: yes
   gather_facts: yes
 

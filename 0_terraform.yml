@@ -14,6 +14,7 @@
     name: "{{ item }}"
     groups:
       - vault_a
+      - vault
   loop: "{{ terraform.outputs.vault_a.value }}"
 
 - name: add vault_b to inventory
@@ -21,6 +22,7 @@
     name: "{{ item }}"
     groups:
       - vault_b
+      - vault
   loop: "{{ terraform.outputs.vault_b.value }}"
 
 - name: add loadbalancer_a to inventory
@@ -28,6 +30,7 @@
     name: "{{ item }}"
     groups:
       - loadbalancer_a
+      - loadbalancers
   loop: "{{ terraform.outputs.loadbalancer_a.value }}"
 
 - name: add loadbalancer_b to inventory
@@ -35,6 +38,7 @@
     name: "{{ item }}"
     groups:
       - loadbalancer_b
+      - loadbalancers
   loop: "{{ terraform.outputs.loadbalancer_b.value }}"
 
 - name: add loadbalancer to inventory
@@ -42,6 +46,7 @@
     name: "{{ item }}"
     groups:
       - loadbalancer
+      - loadbalancers
   loop: "{{ terraform.outputs.loadbalancer.value }}"
 
 # - name: wait a moment to allow dns updates

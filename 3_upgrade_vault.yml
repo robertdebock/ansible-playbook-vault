@@ -15,7 +15,7 @@
         seconds: 15
 
 - name: upgrade vault to 1.8.1
-  hosts: vault_b:vault_a
+  hosts: vault
   become: yes
   gather_facts: yes
   serial: 1

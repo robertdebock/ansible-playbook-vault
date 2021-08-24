@@ -1,8 +1,0 @@
----
-
-hashicorp_installation_method: manual
-
-hashicorp_products:
-  - name: vault
-    type: "{{ vault_type }}"
-    version: "{{ vault_version }}"
