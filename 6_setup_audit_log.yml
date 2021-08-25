@@ -30,6 +30,9 @@
     - name: check audit logs
       command:
         cmd: vault audit list --format=yaml
+      environment:
+        VAULT_ADDR: "{{ vault_api_addr }}"
+        VAULT_TOKEN: "{{ vault_root_token }}"
       register: vault_audit_list
       changed_when: no
 
