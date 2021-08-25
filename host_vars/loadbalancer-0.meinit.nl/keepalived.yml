@@ -5,7 +5,7 @@ keepalived_vrrp_instances:
     state: MASTER
     interface: eth1
     unicast_src_ip: "{{ ansible_eth1.ipv4.address }}"
-    secondary_private_ip: "{{ hostvars['loadbalancer-1.meinit.nl'].ansible_eth1.ipv4.address }}"
+    secondary_private_ip: "{{ hostvars['loadbalancer-1.meinit.nl'].ansible_eth1.ipv4.address | default(ansible_eth1.ipv4.address) }}"
     virtual_router_id: 34
     priority: 255
     authentication:
